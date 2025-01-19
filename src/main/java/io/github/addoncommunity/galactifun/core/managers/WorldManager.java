@@ -2,12 +2,13 @@ package io.github.addoncommunity.galactifun.core.managers;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
 import javax.annotation.Nonnull;
@@ -20,14 +21,12 @@ import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
 import org.bukkit.Tag;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.Ageable;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.block.data.Waterlogged;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -35,35 +34,43 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockGrowEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerGameModeChangeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.event.world.PortalCreateEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.MetadataValue;
 
+import com.destroystokyo.paper.event.player.PlayerTeleportEndGatewayEvent;
 import io.github.addoncommunity.galactifun.Galactifun;
 import io.github.addoncommunity.galactifun.api.items.ExclusiveGEOResource;
 import io.github.addoncommunity.galactifun.api.items.spacesuit.SpaceSuitProfile;
 import io.github.addoncommunity.galactifun.api.universe.attributes.atmosphere.AtmosphericEffect;
 import io.github.addoncommunity.galactifun.api.worlds.AlienWorld;
+import io.github.addoncommunity.galactifun.api.worlds.OrbitWorld;
 import io.github.addoncommunity.galactifun.api.worlds.PlanetaryWorld;
 import io.github.addoncommunity.galactifun.base.BaseUniverse;
 import io.github.addoncommunity.galactifun.base.universe.earth.Earth;
-import io.github.addoncommunity.galactifun.util.PersistentBlockPositions;
+import io.github.addoncommunity.galactifun.util.ChunkStorage;
 import io.github.mooy1.infinitylib.common.Events;
 import io.github.mooy1.infinitylib.common.Scheduler;
+import io.github.thebusybiscuit.slimefun4.api.events.ExplosiveToolBreakBlocksEvent;
 import io.github.thebusybiscuit.slimefun4.api.events.GEOResourceGenerationEvent;
 import io.github.thebusybiscuit.slimefun4.api.events.WaypointCreateEvent;
 import io.github.thebusybiscuit.slimefun4.api.geo.GEOResource;
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItemStack;
-import io.github.thebusybiscuit.slimefun4.libraries.dough.blocks.BlockPosition;
+import io.github.thebusybiscuit.slimefun4.core.handlers.BlockBreakHandler;
 import io.github.thebusybiscuit.slimefun4.libraries.dough.items.ItemUtils;
 import io.github.thebusybiscuit.slimefun4.libraries.paperlib.PaperLib;
 import io.github.thebusybiscuit.slimefun4.utils.ChatUtils;
@@ -71,7 +78,7 @@ import io.github.thebusybiscuit.slimefun4.utils.tags.SlimefunTag;
 
 public final class WorldManager implements Listener {
 
-    private static final NamespacedKey PLACED = Galactifun.createKey("placed");
+    private static final String PLACED = "placed";
 
     @Getter
     private final int maxAliensPerPlayer;
@@ -82,6 +89,7 @@ public final class WorldManager implements Listener {
 
     private final Map<UUID, Integer> respawnTimes = new HashMap<>();
     private final Map<UUID, Long> lastDeaths = new HashMap<>();
+    private final Map<UUID, Long> oxygenDamage = new HashMap<>();
 
     public WorldManager(Galactifun galactifun) {
         this.maxAliensPerPlayer = galactifun.getConfig().getInt("aliens.max-per-player", 4, 64);
@@ -142,9 +150,14 @@ public final class WorldManager implements Listener {
                 PlanetaryWorld world = spaceWorlds.get(p.getWorld());
                 if (world != null
                         && world.atmosphere().requiresOxygenTank()
+                        && !Galactifun.protectionManager().isOxygenBlock(p.getLocation())
                         && !SpaceSuitProfile.get(p).consumeOxygen(20)
-                        && !Galactifun.protectionManager().isOxygenBlock(p.getLocation())) {
-                    p.damage(8);
+                        && !p.isDead()) {
+                    p.sendMessage(ChatColor.RED + "You have run out of oxygen!");
+                    double damage = oxygenDamage.merge(p.getUniqueId(), 2L, (a, b) -> a * b);
+                    p.setHealth(Math.max(p.getHealth() - damage, 0));
+                } else {
+                    oxygenDamage.remove(p.getUniqueId());
                 }
             }
         }
@@ -163,6 +176,25 @@ public final class WorldManager implements Listener {
     @Nonnull
     public Collection<PlanetaryWorld> spaceWorlds() {
         return Collections.unmodifiableCollection(this.spaceWorlds.values());
+    }
+    
+    @Nonnull
+    public Collection<AlienWorld> alienWorlds() {
+        return Collections.unmodifiableCollection(this.alienWorlds.values());
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onPortalCreate(PortalCreateEvent e) {
+        if (!Galactifun.instance().getConfig().getBoolean("worlds.allow-nether-portals") && getAlienWorld(e.getWorld()) != null) {
+            e.setCancelled(true);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void portal(PlayerPortalEvent e){
+        if (!Galactifun.instance().getConfig().getBoolean("worlds.allow-nether-portals") && getAlienWorld(e.getFrom().getWorld()) != null){
+            e.setCancelled(true);
+        }
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -195,15 +227,17 @@ public final class WorldManager implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     private void onPlayerTeleport(@Nonnull PlayerTeleportEvent e) {
+        if (e instanceof PlayerTeleportEndGatewayEvent) return;
         if (!e.getPlayer().hasPermission("galactifun.admin")) {
-            if (e.getTo().getWorld() != null) {
-                AlienWorld world = getAlienWorld(e.getTo().getWorld());
-                if (world != null) {
+            if (e.getTo().getWorld() != null && e.getFrom().getWorld() != e.getTo().getWorld()) {
+                PlanetaryWorld world = getWorld(e.getTo().getWorld());
+                PlanetaryWorld world2 = getWorld(e.getFrom().getWorld());
+                if (world != null && world2 != null) {
                     boolean canTp = false;
                     for (MetadataValue value : e.getPlayer().getMetadata("CanTpAlienWorld")) {
                         canTp = value.asBoolean();
                     }
-                    if (canTp) {
+                    if (canTp || e.getFrom().getWorld().equals(e.getTo().getWorld())) {
                         e.getPlayer().removeMetadata("CanTpAlienWorld", Galactifun.instance());
                     } else {
                         e.setCancelled(true);
@@ -261,24 +295,44 @@ public final class WorldManager implements Listener {
         AlienWorld world = this.alienWorlds.get(w);
         if (world != null) {
             SlimefunItemStack item = world.getMappedItem(b);
-            if (item != null) {
-                BlockPosition pos = new BlockPosition(b);
-                Set<BlockPosition> placed = b.getChunk().getPersistentDataContainer().getOrDefault(
-                        PLACED,
-                        PersistentBlockPositions.INSTANCE,
-                        new HashSet<>()
-                );
-                if (placed.contains(pos)) {
-                    placed.remove(pos);
-                    b.getChunk().getPersistentDataContainer().set(
-                            PLACED,
-                            PersistentBlockPositions.INSTANCE,
-                            placed
-                    );
-                } else {
-                    Location l = b.getLocation();
-                    e.setDropItems(false);
-                    w.dropItemNaturally(l.add(0.5, 0.5, 0.5), item.clone());
+            if (item != null && !removePlacedBlock(b)) {
+                e.setDropItems(false);
+                List<ItemStack> drops = new ArrayList<>();
+                drops.add(item.clone());
+                item.getItem().callItemHandler(BlockBreakHandler.class, h -> h.onPlayerBreak(e, item, drops));
+                for (ItemStack drop : drops) {
+                    w.dropItemNaturally(b.getLocation().add(0.5, 0, 0.5), drop);
+                }
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    private void onBlockExplode(BlockExplodeEvent e) {
+        handleExplosion(e.blockList().iterator());
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    private void onEntityExplode(EntityExplodeEvent e) {
+        handleExplosion(e.blockList().iterator());
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    private void onExplosivePickUse(ExplosiveToolBreakBlocksEvent e) {
+        handleExplosion(e.getAdditionalBlocks().iterator());
+    }
+
+    private void handleExplosion(Iterator<Block> blocks) {
+        while (blocks.hasNext()) {
+            Block b = blocks.next();
+            World w = b.getWorld();
+            AlienWorld world = this.getAlienWorld(w);
+            if (world != null) {
+                SlimefunItemStack item = world.getMappedItem(b);
+                if (item != null && !removePlacedBlock(b)) {
+                    blocks.remove();
+                    w.dropItemNaturally(b.getLocation().add(0.5, 0, 0.5), item.clone());
+                    Scheduler.run(() -> b.setType(Material.AIR));
                 }
             }
         }
@@ -301,19 +355,9 @@ public final class WorldManager implements Listener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     private void onPlace(BlockPlaceEvent e) {
         Block b = e.getBlock();
-        AlienWorld world = this.alienWorlds.get(b.getWorld());
+        AlienWorld world = this.getAlienWorld(b.getWorld());
         if (world != null && world.getMappedItem(b) != null) {
-            Set<BlockPosition> placed = b.getChunk().getPersistentDataContainer().getOrDefault(
-                    PLACED,
-                    PersistentBlockPositions.INSTANCE,
-                    new HashSet<>()
-            );
-            placed.add(new BlockPosition(b));
-            b.getChunk().getPersistentDataContainer().set(
-                    PLACED,
-                    PersistentBlockPositions.INSTANCE,
-                    placed
-            );
+            addPlacedBlock(b);
         }
     }
 
@@ -346,11 +390,11 @@ public final class WorldManager implements Listener {
     }
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    public void onPlayerPlaceWater(PlayerBucketEmptyEvent e) {
+    private void onPlayerPlaceWater(PlayerBucketEmptyEvent e) {
         if (e.getBucket() != Material.WATER_BUCKET) return;
         Player p = e.getPlayer();
         PlanetaryWorld world = this.getWorld(p.getWorld());
-        if (world != null) {
+        if (world != null && world != BaseUniverse.EARTH) {
             e.setCancelled(true);
             if (p.getGameMode() != GameMode.CREATIVE) {
                 ItemStack item = p.getInventory().getItem(e.getHand());
@@ -363,24 +407,20 @@ public final class WorldManager implements Listener {
             Block toBePlaced = clicked.getRelative(e.getBlockFace());
             Location l = toBePlaced.getLocation();
             if (manager.getEffectAt(l, AtmosphericEffect.COLD) > 1) {
-                toBePlaced.setType(Material.ICE);
+                if (toBePlaced.isEmpty()) {
+                    toBePlaced.setType(Material.ICE);
+                }
             } else if (manager.getEffectAt(l, AtmosphericEffect.HEAT) > 1) {
                 p.getWorld().spawnParticle(Particle.SMOKE_NORMAL, l, 5);
             } else {
-                BlockData data = clicked.getBlockData();
-                if (data instanceof Waterlogged waterlogged) {
-                    waterlogged.setWaterlogged(true);
-                    clicked.setBlockData(waterlogged);
-                } else {
-                    toBePlaced.setType(Material.WATER);
-                }
+                e.setCancelled(false);
             }
         }
     }
 
     @EventHandler
-    public void onGEOResourceGenerate(GEOResourceGenerationEvent e) {
-        PlanetaryWorld world = this.spaceWorlds.get(e.getWorld());
+    private void onGEOResourceGenerate(GEOResourceGenerationEvent e) {
+        PlanetaryWorld world = this.getWorld(e.getWorld());
         if (world == null) return;
 
         if (e.getResource() instanceof ExclusiveGEOResource exclusiveResource) {
@@ -394,6 +434,36 @@ public final class WorldManager implements Listener {
         }
 
         e.setValue(0);
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    private void onPlayerFallInOrbit(EntityDamageEvent e) {
+        if (e.getCause() != EntityDamageEvent.DamageCause.VOID) return;
+        PlanetaryWorld world = this.getWorld(e.getEntity().getWorld());
+
+        if (world instanceof OrbitWorld orbitWorld && orbitWorld.getPlanet() instanceof PlanetaryWorld planet) {
+            e.setCancelled(true);
+            Location l = e.getEntity().getLocation();
+            e.getEntity().teleport(new Location(
+                    planet.world(),
+                    l.getX(),
+                    planet.world().getMaxHeight(),
+                    l.getZ()
+            ));
+        }
+    }
+
+    public void addPlacedBlock(Block b) {
+        ChunkStorage.tag(b, PLACED);
+    }
+
+    /**
+     * Removes a non-world-mapped block from the placed blocks list
+     *
+     * @return true if the block was a placed block, false if it was not
+     */
+    public boolean removePlacedBlock(Block b) {
+        return ChunkStorage.untag(b, PLACED);
     }
 
 }

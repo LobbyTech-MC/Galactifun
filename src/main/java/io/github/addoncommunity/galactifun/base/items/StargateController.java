@@ -25,6 +25,7 @@ import org.bukkit.metadata.FixedMetadataValue;
 
 import com.destroystokyo.paper.event.player.PlayerTeleportEndGatewayEvent;
 import io.github.addoncommunity.galactifun.Galactifun;
+import io.github.addoncommunity.galactifun.api.worlds.AlienWorld;
 import io.github.addoncommunity.galactifun.base.BaseItems;
 import io.github.addoncommunity.galactifun.util.BSUtils;
 import io.github.mooy1.infinitylib.common.Events;
@@ -39,12 +40,14 @@ import io.github.thebusybiscuit.slimefun4.core.handlers.BlockBreakHandler;
 import io.github.thebusybiscuit.slimefun4.core.handlers.BlockUseHandler;
 import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
 import io.github.thebusybiscuit.slimefun4.libraries.dough.items.CustomItemStack;
-import io.github.thebusybiscuit.slimefun4.libraries.paperlib.PaperLib;
 import io.github.thebusybiscuit.slimefun4.utils.ChatUtils;
 import io.github.thebusybiscuit.slimefun4.utils.ChestMenuUtils;
 import me.mrCookieSlime.CSCoreLibPlugin.Configuration.Config;
 import me.mrCookieSlime.CSCoreLibPlugin.general.Inventory.ChestMenu;
 import me.mrCookieSlime.Slimefun.api.BlockStorage;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
 
 // TODO clean up if possible
 public final class StargateController extends SlimefunItem implements Listener {
@@ -179,7 +182,6 @@ public final class StargateController extends SlimefunItem implements Listener {
                 gateway.setAge(GATEWAY_TICKS);
                 gateway.setExitLocation(b.getLocation());
                 gateway.update(false, false);
-                BlockStorage.addBlockInfo(portal, "portal", "true");
             }
 
             String destAddress = BlockStorage.getLocationInfo(b.getLocation(), "destination");
@@ -227,7 +229,13 @@ public final class StargateController extends SlimefunItem implements Listener {
                 "&fAddress: " + address,
                 "&7Click to send the address to chat"
         ), (p, i, s, c) -> {
-            p.sendMessage(ChatColor.YELLOW + "Address: " + temp);
+            p.sendMessage(
+                    Component.text()
+                            .color(NamedTextColor.YELLOW)
+                            .content("Address (click to copy): " + temp)
+                            .clickEvent(ClickEvent.copyToClipboard(temp))
+                            .build()
+            );
             p.closeInventory();
             return false;
         });
@@ -309,30 +317,35 @@ public final class StargateController extends SlimefunItem implements Listener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
     public void onUsePortal(PlayerTeleportEndGatewayEvent e) {
-        if (!BSUtils.getStoredBoolean(e.getGateway().getLocation(), "portal")) return;
-        Location dest = BSUtils.getStoredLocation(e.getGateway().getExitLocation(), "dest");
+        Location exit = e.getGateway().getExitLocation();
+        if (exit == null || !(BlockStorage.check(exit) instanceof StargateController)) return;
+        Location dest = BSUtils.getStoredLocation(exit, "dest");
         if (dest == null) return;
 
         e.setCancelled(true);
 
         Player p = e.getPlayer();
-
         if (p.hasMetadata("disableStargate")) return;
 
         Block b = dest.getBlock();
         if (BlockStorage.check(b, BaseItems.STARGATE_CONTROLLER.getItemId()) &&
                 StargateController.getPortalBlocks(b).isEmpty()) {
-            e.getPlayer().sendMessage(ChatColor.RED + "The destination Stargate is not activated");
+            p.sendMessage(ChatColor.RED + "The destination Stargate is not activated");
             return;
         }
 
         Block destBlock = b.getRelative(1, 0, 0);
         if (destBlock.getType().isEmpty()) {
-            PaperLib.teleportAsync(e.getPlayer(), destBlock.getLocation());
+            // Check if the player is teleporting to an alien world, and if so, allow them to
+            AlienWorld world = Galactifun.worldManager().getAlienWorld(destBlock.getWorld());
+            if (world != null) {
+                e.getPlayer().setMetadata("CanTpAlienWorld", new FixedMetadataValue(Galactifun.instance(), true));
+            }
+            p.teleportAsync(destBlock.getLocation());
             p.setMetadata("disableStargate", new FixedMetadataValue(Galactifun.instance(), true));
             Scheduler.run(10, () -> p.removeMetadata("disableStargate", Galactifun.instance()));
         } else {
-            e.getPlayer().sendMessage(ChatColor.RED + "The destination is blocked");
+            p.sendMessage(ChatColor.RED + "The destination is blocked");
         }
     }
 

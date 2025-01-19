@@ -66,7 +66,7 @@ public abstract class ProtectingBlock extends MenuBlock implements EnergyNetComp
         addItemHandler(new BlockTicker() {
             @Override
             public boolean isSynchronized() {
-                return false;
+                return true;
             }
 
             @Override
@@ -75,7 +75,7 @@ public abstract class ProtectingBlock extends MenuBlock implements EnergyNetComp
 
                 BlockMenu menu = BlockStorage.getInventory(b);
                 int req = getEnergyRequirement();
-                if (getCharge(b.getLocation()) < req) {
+                if (getCharge(b.getLocation()) < req || !BSUtils.getStoredBoolean(b.getLocation(), ENABLED)) {
                     BlockStorage.addBlockInfo(b, PROTECTING, "false");
                 } else {
                     BlockStorage.addBlockInfo(b, PROTECTING, "true");
@@ -104,7 +104,7 @@ public abstract class ProtectingBlock extends MenuBlock implements EnergyNetComp
     private void uniqueTick() {
         //noinspection deprecation
         Galactifun.protectionManager().clearProtectedBlocks();
-        for (BlockPosition l : allBlocks) {
+        for (BlockPosition l : new HashSet<>(allBlocks)) {
             updateProtections(l);
         }
     }

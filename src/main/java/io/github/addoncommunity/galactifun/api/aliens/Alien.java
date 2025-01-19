@@ -44,12 +44,12 @@ public class Alien<T extends Mob> {
     private final Class<T> clazz;
     private final String id;
     private final String name;
-    private final int spawnChance;
+    private final double spawnChance;
     private final double maxHealth;
     private AlienManager alienManager;
 
     @ParametersAreNonnullByDefault
-    public Alien(@Nonnull Class<T> clazz, @Nonnull String id, @Nonnull String name, double maxHealth, int spawnChance) {
+    public Alien(@Nonnull Class<T> clazz, @Nonnull String id, @Nonnull String name, double maxHealth, double spawnChance) {
         Validate.isTrue(maxHealth > 0);
         Validate.isTrue(spawnChance > 0 && spawnChance <= 100);
 
@@ -65,6 +65,7 @@ public class Alien<T extends Mob> {
         T mob = world.spawn(loc, this.clazz);
 
         PersistentDataAPI.setString(mob, this.alienManager.key(), this.id);
+        this.alienManager.addAlien(mob.getUniqueId());
 
         Objects.requireNonNull(mob.getAttribute(Attribute.GENERIC_MAX_HEALTH)).setBaseValue(this.maxHealth);
         mob.setHealth(this.maxHealth);
@@ -91,8 +92,8 @@ public class Alien<T extends Mob> {
     public final int attemptSpawn(Random rand, World world) {
         int spawned = 0;
         for (Chunk chunk : world.getLoadedChunks()) {
-            if (rand.nextInt(100) > this.spawnChance) {
-                break;
+            if (rand.nextDouble() * 100 > this.spawnChance) {
+                continue;
             }
 
             int x = rand.nextInt(16) + (chunk.getX() << 4);
