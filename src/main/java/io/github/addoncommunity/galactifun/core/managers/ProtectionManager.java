@@ -7,8 +7,6 @@ import java.util.Set;
 
 import javax.annotation.Nonnull;
 
-import lombok.NonNull;
-
 import org.bukkit.Location;
 
 import io.github.addoncommunity.galactifun.Galactifun;
@@ -16,6 +14,7 @@ import io.github.addoncommunity.galactifun.api.universe.attributes.atmosphere.At
 import io.github.addoncommunity.galactifun.api.universe.attributes.atmosphere.AtmosphericEffect;
 import io.github.addoncommunity.galactifun.api.worlds.AlienWorld;
 import io.github.thebusybiscuit.slimefun4.libraries.dough.blocks.BlockPosition;
+import lombok.NonNull;
 
 public final class ProtectionManager {
 

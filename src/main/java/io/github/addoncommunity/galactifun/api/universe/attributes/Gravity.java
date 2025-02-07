@@ -2,11 +2,11 @@ package io.github.addoncommunity.galactifun.api.universe.attributes;
 
 import javax.annotation.Nonnull;
 
-import lombok.Getter;
-
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+
+import lombok.Getter;
 
 /**
  * Represents the gravitational pull.
@@ -48,7 +48,7 @@ public final class Gravity {
         this.percent = (int) (100 * ratio);
         if (ratio > 0) {
             int level = (int) (Math.log(ratio) / Math.log(JUMP_BOOST)) * -1;
-            this.effect = new PotionEffect(PotionEffectType.JUMP, 200, level - 1, false, false, false);
+            this.effect = new PotionEffect(PotionEffectType.JUMP_BOOST, 200, level - 1, false, false, false);
         } else if (ratio < 0) {
             throw new IllegalArgumentException("Negative gravity is not supported yet!");
         } else {

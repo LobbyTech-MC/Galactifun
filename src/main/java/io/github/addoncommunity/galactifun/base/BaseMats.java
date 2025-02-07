@@ -2,13 +2,12 @@ package io.github.addoncommunity.galactifun.base;
 
 import java.util.Arrays;
 
-import lombok.experimental.UtilityClass;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 import io.github.addoncommunity.galactifun.Galactifun;
+import io.github.addoncommunity.galactifun.api.universe.attributes.atmosphere.Gas;
 import io.github.addoncommunity.galactifun.api.worlds.AlienWorld;
 import io.github.addoncommunity.galactifun.base.items.AssemblyTable;
 import io.github.addoncommunity.galactifun.base.items.CircuitPress;
@@ -21,7 +20,9 @@ import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItemStack;
 import io.github.thebusybiscuit.slimefun4.api.recipes.RecipeType;
 import io.github.thebusybiscuit.slimefun4.implementation.SlimefunItems;
 import io.github.thebusybiscuit.slimefun4.implementation.items.blocks.UnplaceableBlock;
+import io.github.thebusybiscuit.slimefun4.implementation.items.electric.machines.HeatedPressureChamber;
 import io.github.thebusybiscuit.slimefun4.libraries.dough.items.CustomItemStack;
+import lombok.experimental.UtilityClass;
 
 /**
  * A class containing commonly used items in recipes
@@ -36,261 +37,284 @@ public final class BaseMats {
     public static final SlimefunItemStack MOON_DUST = new SlimefunItemStack(
             "MOON_DUST",
             Material.LIGHT_GRAY_CONCRETE_POWDER,
-            "&7Moon Dust"
+            "&7月球尘埃"
+    );
+    public static final SlimefunItemStack MOON_ROCK = new SlimefunItemStack(
+            "MOON_ROCK",
+            Material.ANDESITE,
+            "&7月岩"
     );
     public static final SlimefunItemStack MARS_DUST = new SlimefunItemStack(
             "MARS_DUST",
             Material.RED_SAND,
-            "&cMars Dust"
+            "&c火星尘埃"
+    );
+    public static final SlimefunItemStack MARS_ROCK = new SlimefunItemStack(
+            "MARS_ROCK",
+            Material.TERRACOTTA,
+            "&c火星岩"
     );
     public static final SlimefunItemStack DRY_ICE = new SlimefunItemStack(
             "DRY_ICE",
             Material.PACKED_ICE,
-            "&bDry Ice"
+            "&b干冰"
+    );
+    public static final SlimefunItemStack METHANE_ICE = new SlimefunItemStack(
+            "METHANE_ICE",
+            Material.BLUE_ICE,
+            "&b甲烷冰"
     );
     public static final SlimefunItemStack SULFUR_BLOCK = new SlimefunItemStack(
             "SULFUR_BLOCK",
             Material.YELLOW_TERRACOTTA,
-            "&6Sulfur Block"
+            "&6硫磺块"
     );
     public static final SlimefunItemStack VENTSTONE = new SlimefunItemStack(
             "VENTSTONE",
             Material.MAGMA_BLOCK,
-            "&6Ventstone"
+            "&6透气石"
     );
     public static final SlimefunItemStack LASERITE_ORE = new SlimefunItemStack(
             "LASERITE_ORE",
             Material.REDSTONE_ORE,
-            "&cLaserite Ore"
+            "&c激光矿石"
     );
     //</editor-fold>
     //<editor-fold desc="Ultra Duty" defaultstate="collapsed">
     public static final SlimefunItemStack ALUMINUM_COMPOSITE = new SlimefunItemStack(
             "ALUMINUM_COMPOSITE",
             Material.IRON_INGOT,
-            "&fAluminum Composite",
+            "&f铝复合材料",
             "",
-            "&7You'll never guess how long it took us",
-            "&7to name this material"
+            "&7你永远猜不到我们花了多长时间",
+            "&7给这种材料命名"
     );
     public static final SlimefunItemStack TUNGSTEN_INGOT = new SlimefunItemStack(
             "TUNGSTEN_INGOT",
             Material.NETHERITE_INGOT,
-            "&bTungsten Ingot",
+            "&b钨锭",
             "",
-            "&7A strong metal obtained either from",
-            "&7giving Martians reinforced plates or",
-            "&7from smelting fallen meteors"
+            "&7一种坚硬的金属",
+            "&7从火星土著人中的强化板",
+            "&7或者从流星中获得"
     );
     public static final SlimefunItemStack ALUMINUM_COMPOSITE_SHEET = new SlimefunItemStack(
             "ALUMINUM_COMPOSITE_SHEET",
             Material.PAPER,
-            "&fAluminum Composite Sheet"
+            "&f铝复合板"
     );
     public static final SlimefunItemStack HEAVY_DUTY_SHEET = new SlimefunItemStack(
             "HEAVY_DUTY_SHEET",
             Material.PAPER,
-            "&fHeavy Duty Sheet"
+            "&f重负荷板"
     );
     public static final SlimefunItemStack SPACE_GRADE_PLATE = new SlimefunItemStack(
             "SPACE_GRADE_PLATE",
             Material.PAPER,
-            "&fSpace Grade Plate"
+            "&f空间等级板"
     );
     public static final SlimefunItemStack ULTRA_DUTY_SHEET = new SlimefunItemStack(
             "ULTRA_DUTY_SHEET",
             Material.PAPER,
-            "&fUltra Duty Sheet"
+            "&f超负荷板"
     );
     //</editor-fold>
     //<editor-fold desc="Rocket Stuff" defaultstate="collapsed">
     public static final SlimefunItemStack GOLD_FOIL = new SlimefunItemStack(
             "GOLD_FOIL",
             Material.PAPER,
-            "&6Gold Foil"
+            "&6金箔"
     );
     public static final SlimefunItemStack REINFORCED_CHANNEL = new SlimefunItemStack(
             "REINFORCED_CHANNEL",
             Material.BAMBOO,
-            "&fReinforced Channel"
+            "&f加强管道"
     );
     public static final SlimefunItemStack FAN_BLADE = new SlimefunItemStack(
             "FAN_BLADE",
             GalactifunHead.FAN,
-            "&fFan Blade"
+            "&f鼓风机叶片"
     );
     public static final SlimefunItemStack NOZZLE = new SlimefunItemStack(
             "NOZZLE",
             Material.IRON_TRAPDOOR,
-            "&fNozzle"
+            "&f管口"
     );
     public static final SlimefunItemStack FILTER = new SlimefunItemStack(
-            "FILTER",
+            "AIR_FILTER",
             Material.PAPER,
-            "&fFilter"
+            "&f滤器"
     );
     public static final SlimefunItemStack OXYGEN_REGENERATOR = new SlimefunItemStack(
             "OXYGEN_REGENERATOR",
             GalactifunHead.OXYGEN_REGENERATOR,
-            "&bOxygen Regenerator"
+            "&b氧气再生器"
     );
     public static final SlimefunItemStack SPARK_PLUG = new SlimefunItemStack(
             "SPARK_PLUG",
             Material.FLINT_AND_STEEL,
-            "&fSpark Plug"
+            "&f一阶火花塞"
     );
     public static final SlimefunItemStack SPARK_PLUG_2 = new SlimefunItemStack(
             "SPARK_PLUG_2",
             Material.FLINT_AND_STEEL,
-            "&fSpark Plug Mk 2"
+            "&f二阶火花塞"
     );
     public static final SlimefunItemStack ROCKET_ENGINE = new SlimefunItemStack(
             "ROCKET_ENGINE",
             Material.FLINT_AND_STEEL,
-            "&fRocket Engine"
+            "&f一阶火箭发动机"
     );
     public static final SlimefunItemStack ROCKET_ENGINE_2 = new SlimefunItemStack(
             "ROCKET_ENGINE_2",
             Material.FLINT_AND_STEEL,
-            "&fRocket Engine Mk 2"
+            "&f二阶火箭发动机"
     );
     public static final SlimefunItemStack ROCKET_ENGINE_3 = new SlimefunItemStack(
             "ROCKET_ENGINE_3",
             Material.FLINT_AND_STEEL,
-            "&fRocket Engine Mk 3"
+            "&f三阶火箭发动机"
+    );
+    public static final SlimefunItemStack ION_ENGINE = new SlimefunItemStack(
+            "ION_ENGINE",
+            Material.FLINT_AND_STEEL,
+            "&b离子发动机"
     );
     public static final SlimefunItemStack ADVANCED_PROCESSING_UNIT = new SlimefunItemStack(
             "ADVANCED_PROCESSING_UNIT",
             GalactifunHead.CORE,
-            "&4Advanced Processing Unit"
+            "&4高级处理单元"
     );
     public static final SlimefunItemStack LIFE_SUPPORT_MODULE = new SlimefunItemStack(
             "LIFE_SUPPORT_MODULE",
             GalactifunHead.LIFE_SUPPORT_MODULE,
-            "&4Life Support Module"
+            "&4生命维持模块"
     );
     public static final SlimefunItemStack NOSE_CONE = new SlimefunItemStack(
             "NOSE_CONE",
             Material.REDSTONE_TORCH,
-            "&fNose Cone"
+            "&f鼻锥"
     );
     public static final SlimefunItemStack FUEL_TANK = new SlimefunItemStack(
             "FUEL_TANK",
             GalactifunHead.CAN,
-            "&6Fuel Tank"
+            "&6一阶油箱"
     );
     public static final SlimefunItemStack FUEL_TANK_2 = new SlimefunItemStack(
             "FUEL_TANK_2",
             GalactifunHead.CAN,
-            "&6Fuel Tank Mk 2"
+            "&6二阶油箱"
     );
     public static final SlimefunItemStack DIAMOND_CIRCUIT = new SlimefunItemStack(
             "DIAMOND_CIRCUIT",
             Material.POWERED_RAIL,
-            "&7Diamond Circuit"
+            "&7钻石电路板"
     );
     public static final SlimefunItemStack REDSTONE_CIRCUIT = new SlimefunItemStack(
             "REDSTONE_CIRCUIT",
             Material.POWERED_RAIL,
-            "&7Redstone Circuit"
+            "&7红石电路板"
     );
     public static final SlimefunItemStack LAPIS_CIRCUIT = new SlimefunItemStack(
             "LAPIS_CIRCUIT",
             Material.POWERED_RAIL,
-            "&7Lapis Circuit"
+            "&7青金石电路板"
     );
     public static final SlimefunItemStack GLOWSTONE_CIRCUIT = new SlimefunItemStack(
             "GLOWSTONE_CIRCUIT",
             Material.POWERED_RAIL,
-            "&7Glowstone Circuit"
+            "&7辉石电路板"
     );
     //</editor-fold>
     //<editor-fold desc="Misc" defaultstate="collapsed">
     public static final SlimefunItemStack MUNPOWDER = new SlimefunItemStack(
             "MUNPOWDER",
             Material.GUNPOWDER,
-            "&7Munpowder",
+            "&7芒粉",
             "",
-            "&7The gunpowder of the moon"
+            "&7月球的火药"
     );
     public static final SlimefunItemStack FALLEN_METEOR = new SlimefunItemStack(
             "FALLEN_METEOR",
             Material.ANCIENT_DEBRIS,
-            "&4Fallen Meteor",
+            "&4陨星",
             "",
-            "&7These meteors contain Tungsten"
+            "&7这些流星含有钨"
     );
     public static final SlimefunItemStack MOON_CHEESE = new SlimefunItemStack(
             "MOON_CHEESE",
             GalactifunHead.CHEESE,
-            "&6Moon Cheese",
+            "&6月球芝士",
             "",
-            "&7Ew"
+            "&7真恶心"
     );
     public static final SlimefunItemStack ENDER_BLOCK = new SlimefunItemStack(
             "ENDER_BLOCK",
             Material.PRISMARINE_BRICKS,
-            "&3Ender Block"
+            "&3末地方块"
     );
     public static final SlimefunItemStack LUNAR_GLASS = new SlimefunItemStack(
             "LUNAR_GLASS",
             Material.GLASS,
-            "&fLunar Glass",
+            "&f月球玻璃",
             "",
-            "&7For some reason adding moon dust to",
-            "&7glass makes it clearer..."
+            "&7由于某种原因",
+            "&7在玻璃中加入月球尘埃使其更清晰..."
     );
     public static final SlimefunItemStack VOLCANIC_INGOT = new SlimefunItemStack(
             "VOLCANIC_INGOT",
             Material.GOLD_INGOT,
-            "&4Volcanic Ingot",
+            "&4火山锭",
             "",
-            "&7Forged in the depths of the closest",
-            "&7thing we know to Hell, Volcanic Ingots",
-            "&7are a valuable commodity"
+            "&7在最接近地狱深处锻造的火山锭",
+            "&7是一种有价值的物品"
+            
     );
     public static final SlimefunItemStack BLISTERING_VOLCANIC_INGOT = new SlimefunItemStack(
             "BLISTERING_VOLCANIC_INGOT",
             Material.GOLD_INGOT,
-            "&6Blistering Volcanic Ingot"
+            "&6起泡火山锭"
     );
     public static final SlimefunItemStack TUNGSTEN_CARBIDE = new SlimefunItemStack(
             "TUNGSTEN_CARBIDE",
             Material.IRON_INGOT,
-            "&7Tungsten Carbide"
+            "&7碳化钨"
     );
     public static final SlimefunItemStack DIAMOND_ANVIL_CELL = new SlimefunItemStack(
             "DIAMOND_ANVIL_CELL",
             Material.DIAMOND,
-            "&bDiamond Anvil Cell"
+            "&b钻石砧槽"
     );
     public static final SlimefunItemStack FUSION_PELLET = new SlimefunItemStack(
             "FUSION_PELLET",
             Material.STONE_BUTTON,
-            "&fFusion Pellet"
+            "&f聚变弹丸"
     );
     public static final SlimefunItemStack LASERITE_DUST = new SlimefunItemStack(
             "LASERITE_DUST",
             Material.REDSTONE,
-            "&cLaserite Dust",
+            "&c激光石粉",
             "",
-            "&7I'm running out of names",
+            "&7取名真难",
             Bukkit.getPluginManager().isPluginEnabled("SlimefunWarfare") ?
-                    "&7Can be replaced by Laser Diode from Slimefun Warfare" :
+                    "&7在Slimefun Warfare中,可以代替极光二极管来使用" :
                     ""
     );
     public static final SlimefunItemStack LASERITE = new SlimefunItemStack(
             "LASERITE",
             Material.RED_DYE,
-            "&cLaserite"
+            "&c激光石"
     );
     //</editor-fold>
 
     public static void setup() {
         worldItem(MOON_DUST, BaseUniverse.THE_MOON);
+        worldItem(MOON_ROCK, BaseUniverse.THE_MOON);
         worldItem(MARS_DUST, BaseUniverse.MARS);
+        worldItem(MARS_ROCK, BaseUniverse.MARS);
         worldItem(FALLEN_METEOR, BaseUniverse.MARS);
         worldItem(DRY_ICE, BaseUniverse.MARS, BaseUniverse.TITAN);
+        worldItem(METHANE_ICE, BaseUniverse.TITAN);
         worldItem(SULFUR_BLOCK, BaseUniverse.VENUS, BaseUniverse.IO);
         worldItem(VENTSTONE, BaseUniverse.VENUS);
         worldItem(LASERITE_ORE, BaseUniverse.TITAN);
@@ -302,7 +326,17 @@ public final class BaseMats {
         component(TUNGSTEN_INGOT, RecipeType.SMELTERY, FALLEN_METEOR);
         component(ALUMINUM_COMPOSITE_SHEET, RecipeType.COMPRESSOR, new SlimefunItemStack(ALUMINUM_COMPOSITE, 8));
         component(HEAVY_DUTY_SHEET, RecipeType.COMPRESSOR, new SlimefunItemStack(ALUMINUM_COMPOSITE_SHEET, 8));
-        component(SPACE_GRADE_PLATE, RecipeType.COMPRESSOR, HEAVY_DUTY_SHEET, TUNGSTEN_CARBIDE);
+        component(SPACE_GRADE_PLATE, RecipeType.HEATED_PRESSURE_CHAMBER, HEAVY_DUTY_SHEET, TUNGSTEN_CARBIDE);
+        ((HeatedPressureChamber) SlimefunItems.HEATED_PRESSURE_CHAMBER.getItem()).registerRecipe(
+                20,
+                new ItemStack[]{ HEAVY_DUTY_SHEET, TUNGSTEN_CARBIDE},
+                new ItemStack[]{ SPACE_GRADE_PLATE }
+        );
+        ((HeatedPressureChamber) SlimefunItems.HEATED_PRESSURE_CHAMBER_2.getItem()).registerRecipe(
+                20,
+                new ItemStack[]{ HEAVY_DUTY_SHEET, TUNGSTEN_CARBIDE},
+                new ItemStack[]{ SPACE_GRADE_PLATE }
+        );
         component(ULTRA_DUTY_SHEET, RecipeType.COMPRESSOR, new SlimefunItemStack(SPACE_GRADE_PLATE, 4));
         component(GOLD_FOIL, RecipeType.COMPRESSOR, 4, SlimefunItems.GOLD_24K_BLOCK);
         component(REINFORCED_CHANNEL, RecipeType.ENHANCED_CRAFTING_TABLE, 8,
@@ -330,12 +364,12 @@ public final class BaseMats {
                 NOZZLE, GOLD_FOIL, FILTER,
                 SlimefunItems.ELECTRO_MAGNET, REINFORCED_CHANNEL, FILTER
         );
-        component(SPARK_PLUG, RecipeType.ENHANCED_CRAFTING_TABLE,
+        component(SPARK_PLUG, true, RecipeType.ENHANCED_CRAFTING_TABLE,
                 null, SlimefunItems.STEEL_PLATE, SlimefunItems.NICKEL_INGOT,
                 SlimefunItems.ALUMINUM_INGOT, null, MUNPOWDER,
                 null, SlimefunItems.STEEL_PLATE, SlimefunItems.NICKEL_INGOT
         );
-        component(SPARK_PLUG_2, RecipeType.ENHANCED_CRAFTING_TABLE,
+        component(SPARK_PLUG_2, true, RecipeType.ENHANCED_CRAFTING_TABLE,
                 null, SlimefunItems.STEEL_PLATE, SlimefunItems.NICKEL_INGOT,
                 TUNGSTEN_INGOT, null, MUNPOWDER,
                 null, SlimefunItems.STEEL_PLATE, SlimefunItems.NICKEL_INGOT
@@ -364,6 +398,14 @@ public final class BaseMats {
                 SPACE_GRADE_PLATE, null, null, null, null, SPACE_GRADE_PLATE,
                 SPACE_GRADE_PLATE, null, null, null, null, SPACE_GRADE_PLATE
         );
+        assembly(ION_ENGINE, true,
+                SlimefunItems.SOLAR_GENERATOR_4, REINFORCED_CHANNEL, REINFORCED_CHANNEL, REINFORCED_CHANNEL, REINFORCED_CHANNEL, SlimefunItems.SOLAR_GENERATOR_4,
+                null, null, REINFORCED_CHANNEL, REINFORCED_CHANNEL, null, null,
+                null, DIAMOND_CIRCUIT, NOZZLE, NOZZLE, DIAMOND_CIRCUIT, null,
+                null, SPACE_GRADE_PLATE, BLISTERING_VOLCANIC_INGOT, BLISTERING_VOLCANIC_INGOT, SPACE_GRADE_PLATE, null,
+                SPACE_GRADE_PLATE, null, null, null, null, SPACE_GRADE_PLATE,
+                SPACE_GRADE_PLATE, ALUMINUM_COMPOSITE, null, null, ALUMINUM_COMPOSITE, SPACE_GRADE_PLATE
+                );
         component(ADVANCED_PROCESSING_UNIT, RecipeType.ENHANCED_CRAFTING_TABLE,
                 REDSTONE_CIRCUIT, GLOWSTONE_CIRCUIT, REDSTONE_CIRCUIT,
                 DIAMOND_CIRCUIT, SlimefunItems.ADVANCED_CIRCUIT_BOARD, DIAMOND_CIRCUIT,
@@ -402,7 +444,7 @@ public final class BaseMats {
 
         component(MUNPOWDER, CoreRecipeType.ALIEN_DROP,
                 null, null, null,
-                null, new CustomItemStack(Material.CREEPER_HEAD, "&fMutant Creeper")
+                null, new CustomItemStack(Material.CREEPER_HEAD, "&f变异苦力怕")
         );
         component(ENDER_BLOCK, DiamondAnvil.TYPE, new ItemStack(Material.ENDER_PEARL, 16), BLISTERING_VOLCANIC_INGOT);
         component(LUNAR_GLASS, RecipeType.SMELTERY, new ItemStack(Material.SAND), MOON_DUST);
@@ -439,6 +481,19 @@ public final class BaseMats {
         RecipeType.GRIND_STONE.register(
                 Arrays.copyOf(new ItemStack[] { SULFUR_BLOCK }, 9),
                 new SlimefunItemStack(SlimefunItems.SULFATE, 9)
+        );
+        RecipeType.GRIND_STONE.register(
+                Arrays.copyOf(new ItemStack[] { MARS_ROCK }, 9),
+                new SlimefunItemStack(MARS_DUST, 4)
+        );
+        RecipeType.GRIND_STONE.register(
+                Arrays.copyOf(new ItemStack[] { MOON_ROCK }, 9),
+                new SlimefunItemStack(MOON_DUST, 4)
+        );
+
+        RecipeType.SMELTERY.register(
+                Arrays.copyOf(new ItemStack[] { METHANE_ICE }, 9),
+                new SlimefunItemStack(Gas.METHANE.item(), 4)
         );
     }
 

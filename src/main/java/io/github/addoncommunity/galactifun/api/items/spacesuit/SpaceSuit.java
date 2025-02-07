@@ -7,8 +7,6 @@ import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 
-import lombok.Getter;
-
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -23,6 +21,7 @@ import io.github.thebusybiscuit.slimefun4.api.recipes.RecipeType;
 import io.github.thebusybiscuit.slimefun4.core.attributes.ProtectionType;
 import io.github.thebusybiscuit.slimefun4.core.attributes.ProtectiveArmor;
 import io.github.thebusybiscuit.slimefun4.libraries.dough.common.ChatColors;
+import lombok.Getter;
 
 @ParametersAreNonnullByDefault
 public class SpaceSuit extends SlimefunItem implements ProtectiveArmor {
@@ -30,7 +29,7 @@ public class SpaceSuit extends SlimefunItem implements ProtectiveArmor {
     private static final Map<String, SpaceSuit> SPACE_SUITS = new HashMap<>();
     private static final NamespacedKey SPACE_SUIT_KEY = Galactifun.createKey("space_suit");
     private static final NamespacedKey OXYGEN_KEY = Galactifun.createKey("oxygen");
-    private static final String OXYGEN_LORE = ChatColors.color("&bOxygen: &7");
+    private static final String OXYGEN_LORE = ChatColors.color("&b氧气: &7");
 
     @Getter
     private final int maxUpgrades;

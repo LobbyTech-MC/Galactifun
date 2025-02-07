@@ -1,15 +1,16 @@
 package io.github.addoncommunity.galactifun;
 
+import java.io.File;
 import java.util.logging.Level;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import lombok.Getter;
-
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.generator.ChunkGenerator;
+import org.bukkit.plugin.PluginDescriptionFile;
+import org.bukkit.plugin.java.JavaPluginLoader;
 
 import io.github.addoncommunity.galactifun.api.worlds.AlienWorld;
 import io.github.addoncommunity.galactifun.api.worlds.PlanetaryWorld;
@@ -18,12 +19,11 @@ import io.github.addoncommunity.galactifun.base.BaseItems;
 import io.github.addoncommunity.galactifun.base.BaseMats;
 import io.github.addoncommunity.galactifun.base.BaseUniverse;
 import io.github.addoncommunity.galactifun.core.CoreItemGroup;
+import io.github.addoncommunity.galactifun.core.commands.AlienRemoveCommand;
 import io.github.addoncommunity.galactifun.core.commands.AlienSpawnCommand;
-import io.github.addoncommunity.galactifun.core.commands.ChunkverCommand;
 import io.github.addoncommunity.galactifun.core.commands.EffectsCommand;
 import io.github.addoncommunity.galactifun.core.commands.GalactiportCommand;
 import io.github.addoncommunity.galactifun.core.commands.SealedCommand;
-import io.github.addoncommunity.galactifun.core.commands.SphereCommand;
 import io.github.addoncommunity.galactifun.core.commands.StructureCommand;
 import io.github.addoncommunity.galactifun.core.managers.AlienManager;
 import io.github.addoncommunity.galactifun.core.managers.ProtectionManager;
@@ -31,6 +31,11 @@ import io.github.addoncommunity.galactifun.core.managers.WorldManager;
 import io.github.mooy1.infinitylib.common.Scheduler;
 import io.github.mooy1.infinitylib.core.AbstractAddon;
 import io.github.mooy1.infinitylib.metrics.bukkit.Metrics;
+import io.github.thebusybiscuit.slimefun4.api.MinecraftVersion;
+import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
+import io.github.thebusybiscuit.slimefun4.libraries.dough.updater.GitHubBuildsUpdater;
+import io.github.thebusybiscuit.slimefun4.libraries.paperlib.PaperLib;
+import lombok.Getter;
 
 
 public final class Galactifun extends AbstractAddon {
@@ -38,12 +43,21 @@ public final class Galactifun extends AbstractAddon {
     @Getter
     private static Galactifun instance;
 
+    private boolean isTest = false;
+
     private AlienManager alienManager;
     private WorldManager worldManager;
     private ProtectionManager protectionManager;
 
+    private boolean shouldDisable = false;
+
     public Galactifun() {
-        super("Slimefun-Addon-Community", "Galactifun", "master", "auto-update");
+        super("SlimefunGuguProject", "Galactifun", "master", "auto-update");
+    }
+
+    public Galactifun(JavaPluginLoader loader, PluginDescriptionFile description, File dataFolder, File file) {
+        super(loader, description, dataFolder, file, "SlimefunGuguProject", "Galactifun", "master", "auto-update");
+        isTest = true;
     }
 
     public static AlienManager alienManager() {
@@ -62,6 +76,46 @@ public final class Galactifun extends AbstractAddon {
     protected void enable() {
         instance = this;
 
+        if (!isTest) {
+            boolean shouldDisable = false;
+            if (!getServer().getPluginManager().isPluginEnabled("GuizhanLibPlugin")) {
+                getLogger().log(Level.SEVERE, "本插件需要 鬼斩前置库插件(GuizhanLibPlugin) 才能运行!");
+                getLogger().log(Level.SEVERE, "从此处下载: https://50l.cc/gzlib");
+                getServer().getPluginManager().disablePlugin(this);
+                return;
+            }
+            if (!PaperLib.isPaper()) {
+                log(Level.SEVERE, "Galactifun 只支持Paper以及Paper的衍生服务端(例如Airplane和Purpur)");
+                log(Level.SEVERE, "请使用Paper或者Paper的衍生服务端");
+                shouldDisable = true;
+            }
+            if (Slimefun.getMinecraftVersion().isBefore(MinecraftVersion.MINECRAFT_1_17)) {
+                log(Level.SEVERE, "Galactifun需要在 Minecraft 1.17 及以上版本中运行");
+                log(Level.SEVERE, "请使用Minecraft 1.17 及以上版本");
+                shouldDisable = true;
+            }
+            if (Bukkit.getPluginManager().isPluginEnabled("ClayTech")) {
+                log(Level.SEVERE, "Galactifun 不能和 ClayTech 同时运行");
+                log(Level.SEVERE, "请移除 ClayTech 或 Galactifun");
+                shouldDisable = true;
+            }
+
+            if (Bukkit.getPluginManager().isPluginEnabled("ChatColor2")) {
+                log(Level.SEVERE, "Galactifun will not work properly with ChatColor2");
+                log(Level.SEVERE, "Please disable ChatColor2");
+                shouldDisable = true;
+            }
+
+            if (shouldDisable) {
+                Bukkit.getPluginManager().disablePlugin(this);
+                return;
+            }
+
+            if (getConfig().getBoolean("auto-update", true) && getDescription().getVersion().startsWith("Build")) {
+            	new GitHubBuildsUpdater(this, getFile(), "SlimefunGuguProject/Galactifun/master/").start();
+            }
+        }
+
         new Metrics(this, 11613);
 
         this.alienManager = new AlienManager(this);
@@ -69,7 +123,9 @@ public final class Galactifun extends AbstractAddon {
         this.protectionManager = new ProtectionManager();
 
         BaseAlien.setup(this.alienManager);
-        BaseUniverse.setup(this);
+        if (!isTest) {
+            BaseUniverse.setup(this);
+        }
         CoreItemGroup.setup(this);
         BaseMats.setup();
         BaseItems.setup(this);
@@ -78,9 +134,9 @@ public final class Galactifun extends AbstractAddon {
         Scheduler.run(() -> log(Level.INFO,
                 "################# Galactifun " + getPluginVersion() + " #################",
                 "",
-                "Galactifun is open source, you can contribute or report bugs at: ",
+                "Galactifun是开源的，如果有任何问题, 请在此汇报: ",
                 getBugTrackerURL(),
-                "Join the Slimefun Addon Community Discord: discord.gg/SqD3gg5SAU",
+                "加入Slimefun插件社区: discord.gg/SqD3gg5SAU",
                 "",
                 "###################################################"
         ));
@@ -88,15 +144,16 @@ public final class Galactifun extends AbstractAddon {
         getAddonCommand()
                 .addSub(new GalactiportCommand())
                 .addSub(new AlienSpawnCommand())
-                .addSub(new SphereCommand())
+                .addSub(new AlienRemoveCommand())
                 .addSub(new StructureCommand(this))
                 .addSub(new SealedCommand())
-                .addSub(new EffectsCommand())
-                .addSub(new ChunkverCommand());
+                .addSub(new EffectsCommand());
     }
 
     @Override
     protected void disable() {
+        if (shouldDisable) return;
+
         this.alienManager.onDisable();
 
         // Do this last
@@ -105,8 +162,10 @@ public final class Galactifun extends AbstractAddon {
 
     @Override
     public void load() {
-        // Default to not logging world settings
-        Bukkit.spigot().getConfig().set("world-settings.default.verbose", false);
+        if (!isTest) {
+            // Default to not logging world settings
+            Bukkit.spigot().getConfig().set("world-settings.default.verbose", false);
+        }
     }
 
     @Nullable

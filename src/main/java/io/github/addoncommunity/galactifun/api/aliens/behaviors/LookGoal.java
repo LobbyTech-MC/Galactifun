@@ -10,6 +10,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Mob;
 
 import com.destroystokyo.paper.entity.ai.GoalType;
+
 import io.github.addoncommunity.galactifun.Galactifun;
 
 public final class LookGoal<T extends Mob> extends AlienBehavior<T> {

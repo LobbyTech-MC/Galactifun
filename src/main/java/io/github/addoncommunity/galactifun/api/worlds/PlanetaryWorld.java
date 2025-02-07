@@ -7,9 +7,6 @@ import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import lombok.Getter;
-
-import org.apache.commons.lang.Validate;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
@@ -19,6 +16,7 @@ import org.bukkit.persistence.PersistentDataHolder;
 import org.bukkit.persistence.PersistentDataType;
 
 import com.google.common.collect.Iterables;
+
 import io.github.addoncommunity.galactifun.Galactifun;
 import io.github.addoncommunity.galactifun.api.universe.PlanetaryObject;
 import io.github.addoncommunity.galactifun.api.universe.StarSystem;
@@ -31,7 +29,9 @@ import io.github.addoncommunity.galactifun.base.universe.earth.Earth;
 import io.github.addoncommunity.galactifun.core.managers.WorldManager;
 import io.github.thebusybiscuit.slimefun4.api.SlimefunAddon;
 import io.github.thebusybiscuit.slimefun4.api.geo.GEOResource;
+import io.github.thebusybiscuit.slimefun4.libraries.commons.lang.Validate;
 import io.github.thebusybiscuit.slimefun4.libraries.dough.data.persistent.PersistentDataAPI;
+import lombok.Getter;
 
 /**
  * Any world that can be travelled to by rockets or other means
@@ -63,6 +63,16 @@ public abstract class PlanetaryWorld extends PlanetaryObject {
     public PlanetaryWorld(String name, PlanetaryType type, Orbit orbit, PlanetaryObject orbiting, ItemStack baseItem,
                           DayCycle dayCycle, Atmosphere atmosphere, Gravity gravity) {
         super(name, type, orbit, orbiting, baseItem, dayCycle, atmosphere, gravity);
+    }
+
+    public PlanetaryWorld(String id, String name, PlanetaryType type, Orbit orbit, StarSystem orbiting, ItemStack baseItem,
+                          DayCycle dayCycle, Atmosphere atmosphere, Gravity gravity) {
+        super(id, name, type, orbit, orbiting, baseItem, dayCycle, atmosphere, gravity);
+    }
+
+    public PlanetaryWorld(String id, String name, PlanetaryType type, Orbit orbit, PlanetaryObject orbiting, ItemStack baseItem,
+                          DayCycle dayCycle, Atmosphere atmosphere, Gravity gravity) {
+        super(id, name, type, orbit, orbiting, baseItem, dayCycle, atmosphere, gravity);
     }
 
     public final void register(@Nonnull SlimefunAddon addon) {

@@ -37,7 +37,7 @@ public abstract class BossAlien<T extends Mob> extends Alien<T> {
     private int tick = 0;
 
     @ParametersAreNonnullByDefault
-    public BossAlien(Class<T> clazz, String id, String name, double maxHealth, int spawnChance, @Nonnull BossBarStyle style) {
+    public BossAlien(Class<T> clazz, String id, String name, double maxHealth, double spawnChance, @Nonnull BossBarStyle style) {
         super(clazz, id, name, maxHealth, spawnChance);
         this.style = style;
     }
@@ -146,7 +146,7 @@ public abstract class BossAlien<T extends Mob> extends Alien<T> {
 
         bossbar = this.style.create(manager.bossKey(), name());
         bossbar.setVisible(true);
-        bossbar.setProgress(entity.getHealth() / maxHealth());
+        bossbar.setProgress(Math.min(entity.getHealth() / maxHealth(), 1.0));
         this.bossBars.put(entity, bossbar);
         return bossbar;
     }

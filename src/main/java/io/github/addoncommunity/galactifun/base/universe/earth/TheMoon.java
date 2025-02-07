@@ -17,6 +17,8 @@ import io.github.addoncommunity.galactifun.api.universe.attributes.Orbit;
 import io.github.addoncommunity.galactifun.api.universe.attributes.atmosphere.Atmosphere;
 import io.github.addoncommunity.galactifun.api.universe.types.PlanetaryType;
 import io.github.addoncommunity.galactifun.api.worlds.SimpleAlienWorld;
+import it.unimi.dsi.fastutil.objects.ObjectIntImmutablePair;
+import it.unimi.dsi.fastutil.objects.ObjectIntPair;
 
 /**
  * The moon
@@ -31,6 +33,11 @@ public final class TheMoon extends SimpleAlienWorld {
         super(name, type, orbit, orbiting, baseItem, dayCycle, atmosphere, gravity);
     }
 
+    public TheMoon(String id, String name, PlanetaryType type, Orbit orbit, PlanetaryObject orbiting, ItemStack baseItem,
+                   DayCycle dayCycle, Atmosphere atmosphere, Gravity gravity) {
+        super(id, name, type, orbit, orbiting, baseItem, dayCycle, atmosphere, gravity);
+    }
+
     @Override
     protected void getPopulators(@Nonnull List<BlockPopulator> populators) {
 
@@ -39,14 +46,17 @@ public final class TheMoon extends SimpleAlienWorld {
     @Nonnull
     @Override
     protected Material generateMaterial(@Nonnull Random random, int x, int y, int z, int top) {
-        if (y > top - 2) {
-            return Material.LIGHT_GRAY_CONCRETE_POWDER;
-        }
         if (random.nextFloat() > .02) {
             return Material.ANDESITE;
         } else {
             return Material.GOLD_ORE;
         }
+    }
+
+    @Nonnull
+    @Override
+    protected ObjectIntPair<Material> getTop() {
+        return new ObjectIntImmutablePair<>(Material.LIGHT_GRAY_CONCRETE_POWDER, 2);
     }
 
     @Nonnull
@@ -58,6 +68,12 @@ public final class TheMoon extends SimpleAlienWorld {
     @Override
     protected int getAverageHeight() {
         return 50;
+    }
+
+    @Nonnull
+    @Override
+    protected CraterSettings getCraterSettings() {
+        return CraterSettings.DEFAULT;
     }
 
 }

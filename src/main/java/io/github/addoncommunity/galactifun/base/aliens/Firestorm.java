@@ -2,8 +2,6 @@ package io.github.addoncommunity.galactifun.base.aliens;
 
 import javax.annotation.Nonnull;
 
-import lombok.NonNull;
-
 import org.bukkit.entity.Blaze;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
@@ -17,13 +15,14 @@ import org.bukkit.metadata.FixedMetadataValue;
 import io.github.addoncommunity.galactifun.Galactifun;
 import io.github.addoncommunity.galactifun.api.aliens.Alien;
 import io.github.mooy1.infinitylib.common.Events;
+import lombok.NonNull;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
 public final class Firestorm extends Alien<Blaze> implements Listener {
 
 
-    public Firestorm(@NonNull String id, @NonNull String name, double maxHealth, int spawnChance) {
+    public Firestorm(@NonNull String id, @NonNull String name, double maxHealth, double spawnChance) {
         super(Blaze.class, id, name, maxHealth, spawnChance);
 
         Events.registerListener(this);
@@ -58,8 +57,8 @@ public final class Firestorm extends Alien<Blaze> implements Listener {
         if (msg == null) return;
 
         String s = PlainTextComponentSerializer.plainText().serialize(msg);
-        if (s.endsWith(" was struck by lightning whilst fighting Firestorm")) {
-            e.deathMessage(Component.text(e.getEntity().getName() + " was electrocuted by Firestorm"));
+        if (s.endsWith(" 在与烈焰风暴搏斗时被闪电击中")) {
+            e.deathMessage(Component.text(e.getEntity().getName() + " 因烈焰风暴而触电身亡"));
         }
     }
 

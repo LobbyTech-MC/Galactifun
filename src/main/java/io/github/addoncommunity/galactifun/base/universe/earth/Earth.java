@@ -29,13 +29,18 @@ public final class Earth extends PlanetaryWorld {
         super(name, type, orbit, orbiting, baseItem, dayCycle, atmosphere, gravity);
     }
 
+    public Earth(String id, String name, PlanetaryType type, Orbit orbit, StarSystem orbiting, ItemStack baseItem,
+                 DayCycle dayCycle, Atmosphere atmosphere, Gravity gravity) {
+        super(id, name, type, orbit, orbiting, baseItem, dayCycle, atmosphere, gravity);
+    }
+
     @Nonnull
     @Override
     public World loadWorld() {
         String name = Galactifun.instance().getConfig().getString("worlds.earth-name");
         World world = new WorldCreator(Objects.requireNonNull(name)).createWorld(); // this will load the world as only the default world loads on startup
         if (world == null) {
-            throw new IllegalStateException("Failed to read earth world name from config; no default world found!");
+            throw new IllegalStateException("无法从配置中读取地球世界名称;找不到默认世界!");
         } else {
             return world;
         }

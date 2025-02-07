@@ -2,11 +2,11 @@ package io.github.addoncommunity.galactifun.api.universe.attributes;
 
 import javax.annotation.Nonnull;
 
-import lombok.Getter;
-
 import org.bukkit.GameRule;
 import org.bukkit.World;
-import org.apache.commons.lang.Validate;
+
+import io.github.thebusybiscuit.slimefun4.libraries.commons.lang.Validate;
+import lombok.Getter;
 
 /**
  * Represents the amount of sunlight a celestial object s

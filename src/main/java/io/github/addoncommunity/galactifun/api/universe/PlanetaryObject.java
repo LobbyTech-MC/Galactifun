@@ -2,8 +2,6 @@ package io.github.addoncommunity.galactifun.api.universe;
 
 import javax.annotation.Nonnull;
 
-import lombok.Getter;
-
 import org.bukkit.inventory.ItemStack;
 
 import io.github.addoncommunity.galactifun.api.universe.attributes.DayCycle;
@@ -11,6 +9,7 @@ import io.github.addoncommunity.galactifun.api.universe.attributes.Gravity;
 import io.github.addoncommunity.galactifun.api.universe.attributes.Orbit;
 import io.github.addoncommunity.galactifun.api.universe.attributes.atmosphere.Atmosphere;
 import io.github.addoncommunity.galactifun.api.universe.types.PlanetaryType;
+import lombok.Getter;
 
 /**
  * A celestial object
@@ -35,6 +34,22 @@ public class PlanetaryObject extends UniversalObject {
     public PlanetaryObject(String name, PlanetaryType type, Orbit orbit, PlanetaryObject orbiting, ItemStack baseItem,
                            @Nonnull DayCycle dayCycle, @Nonnull Atmosphere atmosphere, @Nonnull Gravity gravity) {
         super(name, type, orbit, orbiting, baseItem);
+        this.dayCycle = dayCycle;
+        this.atmosphere = atmosphere;
+        this.gravity = gravity;
+    }
+
+    public PlanetaryObject(String id, String name, PlanetaryType type, Orbit orbit, StarSystem orbiting, ItemStack baseItem,
+                           @Nonnull DayCycle dayCycle, @Nonnull Atmosphere atmosphere, @Nonnull Gravity gravity) {
+        super(id, name, type, orbit, orbiting, baseItem);
+        this.dayCycle = dayCycle;
+        this.atmosphere = atmosphere;
+        this.gravity = gravity;
+    }
+
+    public PlanetaryObject(String id, String name, PlanetaryType type, Orbit orbit, PlanetaryObject orbiting, ItemStack baseItem,
+                           @Nonnull DayCycle dayCycle, @Nonnull Atmosphere atmosphere, @Nonnull Gravity gravity) {
+        super(id, name, type, orbit, orbiting, baseItem);
         this.dayCycle = dayCycle;
         this.atmosphere = atmosphere;
         this.gravity = gravity;

@@ -2,9 +2,8 @@ package io.github.addoncommunity.galactifun.api.universe.attributes;
 
 import javax.annotation.Nonnull;
 
-import org.apache.commons.lang.Validate;
-
 import io.github.addoncommunity.galactifun.util.Util;
+import io.github.thebusybiscuit.slimefun4.libraries.commons.lang.Validate;
 
 /**
  * Represents the orbit of a celestial object

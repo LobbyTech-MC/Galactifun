@@ -1,5 +1,6 @@
 package io.github.addoncommunity.galactifun.core;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -7,6 +8,7 @@ import java.util.UUID;
 
 import javax.annotation.Nonnull;
 
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -83,6 +85,7 @@ public final class WorldSelector {
         ChestMenu menu = new ChestMenu(object.name());
         menu.setEmptySlotsClickable(false);
 
+        menu.addMenuOpeningHandler(player -> player.playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1.0F, 1.0F));
         // back button
         menu.addItem(0, ChestMenuUtils.getBackButton(p));
         if (object.orbiting() == null) {
@@ -113,12 +116,12 @@ public final class WorldSelector {
                     lore.remove(lore.size() - 1);
 
                     if (distance > 0) {
-                        lore.add(Component.text("Distance: " + (distance < 1
-                                ? distance * Util.KM_PER_LY + " Kilometers"
-                                : distance + " Light Years")
+                        lore.add(Component.text("距离: " + (distance < .5
+                                ? "%.3f 公里".formatted(distance * Util.KM_PER_LY)
+                                : distance + " 光年")
                         ).color(NamedTextColor.GRAY));
                     } else {
-                        lore.add(Component.text("You are here!").color(NamedTextColor.GRAY));
+                        lore.add(Component.text("你在这里!").color(NamedTextColor.GRAY));
                     }
 
                     KnowledgeLevel.get(p, world).addLore(lore, world);
@@ -157,12 +160,10 @@ public final class WorldSelector {
                     lore.remove(lore.size() - 1);
 
                     if (distance > 0) {
-                        lore.add(Component.text("Distance: " + (distance < 1
-                                ? distance * Util.KM_PER_LY + " Kilometers"
-                                : distance + " Light Years")
-                        ).color(NamedTextColor.GRAY));
+                        lore.add(Component.text("距离: " + Util.formatDistance(distance))
+                                .color(NamedTextColor.GRAY));
                     } else {
-                        lore.add(Component.text("You are here!").color(NamedTextColor.GRAY));
+                        lore.add(Component.text("你在这里!").color(NamedTextColor.GRAY));
                     }
 
                     if (orbiter instanceof PlanetaryWorld planetaryWorld) {
@@ -176,26 +177,40 @@ public final class WorldSelector {
                     item.setItemMeta(meta);
                 }
             }
-
-            menu.addItem(i + offset, item);
-            if (orbiter.orbiters().size() == 0) {
-                menu.addMenuClickHandler(i + offset, (clicker, i1, s, a) -> {
-                    // 99% true
-                    if (orbiter instanceof PlanetaryWorld planetaryWorld) {
-                        selectHandler.onSelect(clicker, planetaryWorld);
-                    }
-                    return false;
-                });
+            if (orbiter instanceof PlanetaryWorld || showObject(p, orbiter)) {
+                menu.addItem(i + offset, item);
+                if (orbiter.orbiters().size() == 0) {
+                    menu.addMenuClickHandler(i + offset, (clicker, i1, s, a) -> {
+                        // 99% true
+                        if (orbiter instanceof PlanetaryWorld planetaryWorld) {
+                            selectHandler.onSelect(clicker, planetaryWorld);
+                        }
+                        return false;
+                    });
+                } else {
+                    menu.addMenuClickHandler(i + offset, (p1, slot, item1, a) -> {
+                        open(p1, orbiter, true);
+                        return false;
+                    });
+                }
             } else {
-                menu.addMenuClickHandler(i + offset, (p1, slot, item1, a) -> {
-                    open(p1, orbiter, true);
-                    return false;
-                });
+                offset--;
             }
         }
 
         menu.open(p);
 
+    }
+
+    private boolean showObject(Player p, UniversalObject object) {
+        for (UniversalObject o : object.orbiters()) {
+            if (o instanceof PlanetaryWorld world && world.enabled() && modifier.modifyItem(p, world, new ArrayList<>())) {
+                return true;
+            } else if (showObject(p, o) && modifier.modifyItem(p, o, new ArrayList<>())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @FunctionalInterface
