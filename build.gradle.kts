@@ -16,16 +16,16 @@ repositories {
 dependencies {
     api("io.github.mooy1:InfinityLib:1.3.7")
     compileOnly("io.papermc.paper:paper-api:1.18.2-R0.1-SNAPSHOT")
-    compileOnly("io.github.TheBusyBiscuit:Slimefun4:RC-37")
+    compileOnly("io.github.SlimefunGuguProject:Slimefun4:2024.3.1")
     compileOnly("com.google.code.findbugs:jsr305:3.0.2")
 
-    testImplementation("com.github.seeseemelk:MockBukkit-v1.18:2.85.2")
+    testImplementation("com.github.seeseemelk:MockBukkit-v1.21:2.85.2")
 }
 
 group = "io.github.addoncommunity.galactifun"
 version = "MODIFIED"
 description = "Galactifun"
-java.sourceCompatibility = JavaVersion.VERSION_17
+java.sourceCompatibility = JavaVersion.VERSION_21
 
 tasks.shadowJar {
     relocate("io.github.mooy1.infinitylib", "io.github.addoncommunity.galactifun.infinitylib")
@@ -58,5 +58,5 @@ tasks.runServer {
         url("https://blob.build/dl/Slimefun4/Dev/1116")
     }
     maxHeapSize = "4G"
-    minecraftVersion("1.20.4")
+    minecraftVersion("1.21.1")
 }
