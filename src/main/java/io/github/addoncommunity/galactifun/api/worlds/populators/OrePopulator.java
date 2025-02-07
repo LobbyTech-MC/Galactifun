@@ -6,10 +6,10 @@ import java.util.Set;
 
 import javax.annotation.Nonnull;
 
+import org.bukkit.Chunk;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.generator.BlockPopulator;
-import org.bukkit.generator.LimitedRegion;
-import org.bukkit.generator.WorldInfo;
 
 import io.github.addoncommunity.galactifun.api.worlds.AlienWorld;
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItemStack;
@@ -51,10 +51,7 @@ public class OrePopulator extends BlockPopulator {
     }
 
     @Override
-    public void populate(@Nonnull WorldInfo worldInfo, @Nonnull Random random, int cx, int cz, @Nonnull LimitedRegion region) {
-        int startX = region.getCenterChunkX() << 4;
-        int startZ = region.getCenterChunkZ() << 4;
-
+    public void populate(@Nonnull World world, @Nonnull Random random, @Nonnull Chunk chunk) {
         for (int i = 0; i < this.attempts; i++) {
             if (random.nextInt(100) < this.chance) {
                 int x = random.nextInt(16);
@@ -62,8 +59,8 @@ public class OrePopulator extends BlockPopulator {
                 int z = random.nextInt(16);
 
                 int length = 0;
-                while (length < this.maxSize && this.replaceable.contains(region.getType(startX + x, y, startZ + z))) {
-                    region.setType(startX + x, y, startZ + z, this.ore);
+                while (length < this.maxSize && this.replaceable.contains(chunk.getBlock(x, y, z).getType())) {
+                    chunk.getBlock(x, y, z).setType(this.ore, false);
 
                     if ((length < this.minSize) || (random.nextInt(100) < 50)) {
                         switch (random.nextInt(6)) {

@@ -13,9 +13,6 @@ import lombok.RequiredArgsConstructor;
 public class UniversalType {
 
     @Getter
-    private final String id;
-
-    @Getter
     private final String description;
 
 }

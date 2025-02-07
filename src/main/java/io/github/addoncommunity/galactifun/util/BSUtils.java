@@ -10,7 +10,6 @@ import lombok.experimental.UtilityClass;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Block;
 
 import io.github.thebusybiscuit.slimefun4.libraries.dough.common.CommonPatterns;
@@ -60,11 +59,6 @@ public class BSUtils {
     }
 
     @ParametersAreNonnullByDefault
-    public static boolean getStoredBoolean(Block b, String key) {
-        return getStoredBoolean(b.getLocation(), key);
-    }
-
-    @ParametersAreNonnullByDefault
     public static Location getStoredLocation(Location l, String key) {
         String s = BlockStorage.getLocationInfo(l, key);
         if (s == null || s.isEmpty() || s.isBlank()) return null;
@@ -76,20 +70,6 @@ public class BSUtils {
     @ParametersAreNonnullByDefault
     public static void setStoredLocation(Location l, String key, Location location) {
         BlockStorage.addBlockInfo(l, key, location.getX() + ";" + location.getY() + ";" + location.getZ() + ";" + location.getWorld().getUID());
-    }
-
-    @Nullable
-    @ParametersAreNonnullByDefault
-    public static OfflinePlayer getStoredPlayer(Location l) {
-        String s = BlockStorage.getLocationInfo(l, "player");
-        if (s == null || s.isEmpty() || s.isBlank()) return null;
-
-        return Bukkit.getOfflinePlayer(UUID.fromString(s));
-    }
-
-    @ParametersAreNonnullByDefault
-    public static void setStoredPlayer(Location l, OfflinePlayer player) {
-        BlockStorage.addBlockInfo(l, "player", player.getUniqueId().toString());
     }
 
 }

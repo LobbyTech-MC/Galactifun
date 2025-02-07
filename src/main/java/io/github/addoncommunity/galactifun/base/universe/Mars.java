@@ -4,14 +4,16 @@ import java.util.List;
 import java.util.Random;
 
 import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
-import org.bukkit.Location;
+import org.bukkit.Chunk;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Biome;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.generator.BlockPopulator;
 import org.bukkit.generator.ChunkGenerator;
-import org.bukkit.generator.LimitedRegion;
-import org.bukkit.generator.WorldInfo;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.noise.SimplexOctaveGenerator;
 
@@ -23,8 +25,6 @@ import io.github.addoncommunity.galactifun.api.universe.attributes.atmosphere.At
 import io.github.addoncommunity.galactifun.api.universe.types.PlanetaryType;
 import io.github.addoncommunity.galactifun.api.worlds.SimpleAlienWorld;
 import io.github.addoncommunity.galactifun.util.GenUtils;
-import it.unimi.dsi.fastutil.objects.ObjectIntImmutablePair;
-import it.unimi.dsi.fastutil.objects.ObjectIntPair;
 
 /**
  * Class for Mars
@@ -42,19 +42,16 @@ public final class Mars extends SimpleAlienWorld {
     @Nonnull
     @Override
     protected Material generateMaterial(@Nonnull Random random, int x, int y, int z, int top) {
+        // top 4 blocks
+        if (y > top - 4) {
+            return Material.RED_SAND;
+        }
         if (random.nextDouble() <= 0.1 && y <= 15) {
             // 10% of blocks under y 15 are iron ore
             return Material.IRON_ORE;
         }
         // 90% of blocks are terracotta
         return Material.TERRACOTTA;
-    }
-
-    @Nonnull
-    @Override
-    protected ObjectIntPair<Material> getTop() {
-        // top 4 blocks
-        return new ObjectIntImmutablePair<>(Material.RED_SAND, 4);
     }
 
     @Override
@@ -74,41 +71,40 @@ public final class Mars extends SimpleAlienWorld {
     @Nonnull
     @Override
     protected Biome getBiome() {
-        return Biome.DESERT;
+        return Biome.DESERT_HILLS;
     }
 
     @Override
     public void getPopulators(@Nonnull List<BlockPopulator> populators) {
         populators.add(new BlockPopulator() {
             @Override
-            public void populate(@Nonnull WorldInfo worldInfo, @Nonnull Random random, int cx, int cz, @Nonnull LimitedRegion region) {
-                if (random.nextInt(100) < 1) {
-                    int x = random.nextInt(16) + (region.getCenterChunkX() << 4);
-                    int z = random.nextInt(16) + (region.getCenterChunkZ() << 4);
+            @ParametersAreNonnullByDefault
+            public void populate(World world, Random random, Chunk source) {
 
-                    for (int y = 0; y < worldInfo.getMaxHeight(); y++) {
-                        if (region.getType(x, y, z).isAir()) {
-                            region.setType(x, y, z, Material.ANCIENT_DEBRIS);
-                            break;
-                        }
-                    }
+                if (random.nextInt(100) < 1) {
+
+                    int x = random.nextInt(16);
+                    int z = random.nextInt(16);
+
+                    Block b = world.getHighestBlockAt((source.getX() << 4) + x, (source.getZ() << 4) + z);
+                    b.getRelative(BlockFace.UP).setType(Material.ANCIENT_DEBRIS);
                 }
             }
         });
         populators.add(new BlockPopulator() {
             @Override
-            public void populate(@Nonnull WorldInfo worldInfo, @Nonnull Random random, int cx, int cz, @Nonnull LimitedRegion region) {
+            public void populate(@Nonnull World world, @Nonnull Random random, @Nonnull Chunk source) {
                 if (random.nextDouble() < 0.5) {
+                    int dist = random.nextInt(4) + 1;
 
-                    int x = random.nextInt(16) + (region.getCenterChunkX() << 4);
-                    int z = random.nextInt(16) + (region.getCenterChunkZ() << 4);
+                    int x = random.nextInt(16 - dist * 2) + dist;
+                    int z = random.nextInt(16 - dist * 2) + dist;
                     int y = random.nextInt(30) + 1;
 
                     GenUtils.generateSquare(
-                            region,
-                            new Location(null, x, y, z),
+                            source.getBlock(x, y, z).getLocation(),
                             Material.PACKED_ICE,
-                            random.nextInt(4) + 1
+                            dist
                     );
                 }
             }

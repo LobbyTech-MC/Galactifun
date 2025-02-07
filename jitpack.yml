@@ -1,3 +1,4 @@
 before_install:
-  - sdk install java 21.0.3-tem
-  - sdk use java 21.0.3-tem
+  - wget https://github.com/sormuras/bach/raw/master/install-jdk.sh
+  - source install-jdk.sh --feature 16
+  - jshell --version
