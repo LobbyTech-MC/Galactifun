@@ -1,0 +1,24 @@
+name: Galactifun
+version: MODIFIED
+main: io.github.addoncommunity.galactifun.Galactifun
+description: Space addon for Slimefun
+authors:
+ - Seggan
+ - Mooy1
+ - GallowsDove
+ - ProfElements
+depend:
+ - Slimefun
+commands:
+  galactifun:
+    description: Galactifun main command
+    aliases:
+     - gf
+     - galactic
+    usage: /galactifun <subcommand>
+api-version: 1.18
+softdepend:
+ - ClayTech
+ - BentoBox
+loadbefore:
+ - Multiverse-Core
