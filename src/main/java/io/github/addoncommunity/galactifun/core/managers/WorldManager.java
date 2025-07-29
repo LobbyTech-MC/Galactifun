@@ -230,14 +230,19 @@ public final class WorldManager implements Listener {
         if (e instanceof PlayerTeleportEndGatewayEvent) return;
         if (!e.getPlayer().hasPermission("galactifun.admin")) {
             if (e.getTo().getWorld() != null && e.getFrom().getWorld() != e.getTo().getWorld()) {
-                PlanetaryWorld world = getWorld(e.getTo().getWorld());
-                PlanetaryWorld world2 = getWorld(e.getFrom().getWorld());
-                if (world != null && world2 != null) {
+                PlanetaryWorld fromWorld = getWorld(e.getFrom().getWorld());
+                PlanetaryWorld toWorld = getWorld(e.getTo().getWorld());
+                if (
+                        (fromWorld != null || toWorld != null)
+                        && !BaseUniverse.EARTH.equals(toWorld)
+                        && !BaseUniverse.EARTH.equals(fromWorld)
+                        || (BaseUniverse.EARTH.equals(fromWorld) && toWorld != null)
+                ) {
                     boolean canTp = false;
                     for (MetadataValue value : e.getPlayer().getMetadata("CanTpAlienWorld")) {
-                        canTp = value.asBoolean();
+                        canTp |= value.asBoolean();
                     }
-                    if (canTp || e.getFrom().getWorld().equals(e.getTo().getWorld())) {
+                    if (canTp) {
                         e.getPlayer().removeMetadata("CanTpAlienWorld", Galactifun.instance());
                     } else {
                         e.setCancelled(true);
